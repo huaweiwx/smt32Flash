@@ -43,7 +43,6 @@ struct gpio_list {
 	int exported; /* 0 if gpio should be unexported. */
 };
 
-#if defined(__linux__)
 static int write_to(const char *filename, const char *value)
 {
 	int fd, ret;
@@ -63,6 +62,13 @@ static int write_to(const char *filename, const char *value)
 	return 1;
 }
 
+#if !defined(__linux__)
+static int drive_gpio(int n, int level, struct gpio_list **gpio_to_release) //for windows huaweiwx@sina.com 2017.9.6
+{
+	setGPIO(n,level);
+	return 1;
+}
+#else
 static int read_from(const char *filename, char *buf, size_t len)
 {
 	int fd, ret;
@@ -139,7 +145,7 @@ static int drive_gpio(int n, int level, struct gpio_list **gpio_to_release)
 
 	return write_to(file, level ? "high" : "low");
 }
-
+#endif
 static int release_gpio(int n, int input, int exported)
 {
 	char num[16]; /* sized to carry MAX_INT */
@@ -155,13 +161,7 @@ static int release_gpio(int n, int input, int exported)
 
 	return 1;
 }
-#else
-static int drive_gpio(int n, int level, struct gpio_list **gpio_to_release)
-{
-	fprintf(stderr, "GPIO control only available in Linux\n");
-	return 0;
-}
-#endif
+
 
 static int gpio_sequence(struct port_interface *port, const char *seq, size_t len_seq)
 {

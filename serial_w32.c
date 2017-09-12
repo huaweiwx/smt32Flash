@@ -360,3 +360,10 @@ struct port_interface port_serial = {
 	.gpio	= serial_w32_gpio,
 	.get_cfg_str	= serial_w32_get_cfg_str,
 };
+
+int setGPIO(int n,unsigned short level) //add by huaweiwx@sina.com 2017.9.6
+{	
+	struct port_interface* port = &port_serial;	
+    serial_w32_gpio(port,n, level);
+    return 1;
+}
